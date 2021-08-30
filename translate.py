@@ -68,7 +68,6 @@ def greedy_translate(model, example_src_sentence, src_field, trg_field, device, 
 
     # convert to torch_long_tensor of shape [batch_size, seq_len] (batch_size is 1 here)
     src_tensor = torch.LongTensor(tokenized_src_indices).unsqueeze(0).to(device)
-    # print("src_tensor", src_tensor)
 
     # start translated sentence with the start token
     translated_sentence = [trg_field.vocab.stoi["<sos>"]]
