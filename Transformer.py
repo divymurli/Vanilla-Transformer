@@ -1,13 +1,15 @@
 import torch
 import torch.nn as nn
-
-# this is deprecated, what's the best way to create a variable without gradients?
-from torch.autograd import Variable
 import math
 
+### Bare-bones, vanilla transformer architecture from scratch implemented as in https://arxiv.org/abs/1706.03762 
+# Implementation inspired from https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/Pytorch/more_advanced/transformer_from_scratch/transformer_from_scratch.py with 
+# modifications
+
+# Define a device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
+# Prototype target mask: "look ahead" mask to prevent attention mechanism from looking ahead thereby preventing it from 'cheating'
 def create_trg_mask(trg_len, device):
 
     lower_triangular = torch.tril(torch.ones(trg_len, trg_len))
@@ -15,7 +17,7 @@ def create_trg_mask(trg_len, device):
 
     return trg_mask.to(device)
 
-
+# Mask away padding indices
 def create_src_mask(src, src_pad_idx, device):
 
     src_mask = (src != src_pad_idx).unsqueeze(1).unsqueeze(2)
@@ -23,7 +25,7 @@ def create_src_mask(src, src_pad_idx, device):
     return src_mask.to(device)
 
 
-# naive non-multi-head attention
+# Naive non-multi-head attention implementation
 class Attention(nn.Module):
     def __init__(self, embedding_dim):
 
@@ -46,7 +48,10 @@ class Attention(nn.Module):
 
         return out
 
-# Two ways to implement attention:
+# Multi-head attention
+# In the original paper, the attention matrices have shape [d_embed, d_{q,k,v}]. However, as described in http://peterbloem.nl/blog/transformers,
+# one can save memory by chunking the embedding space into smaller pieces (and have the attention matrices be of shape [d_{q,k,v}, d_{q,k,v}]) and then concatenate everything back together.
+# This is how we implement it here, however it would be interesting to see how the original attention mechanism described in the paper compares performance-wise.
 # TODO: add an assert statement that says embedding dim must be divisible by number of heads
 
 class MultiHeadAttention(nn.Module):
@@ -84,20 +89,17 @@ class MultiHeadAttention(nn.Module):
         # for each element in the batch, have a weight matrix per head
         attn_weights = torch.einsum('bqhd, bkhd -> bhqk', [query, key])
 
-        #print(mask)
         if mask is not None:
             attn_weights = attn_weights.masked_fill(mask == 0, -float('inf'))
 
         attn_weights_softmax = torch.softmax(attn_weights / self.embedding_dim ** 0.5, dim = 3)
-
-        # out = torch.einsum('bhqv, bvhd -> bhqd', [attn_weights_softmax, value])
         out = torch.einsum('bhqv, bvhd -> bqhd', [attn_weights_softmax, value])
         out = torch.reshape(out, (out.shape[0], out.shape[1], out.shape[2]*out.shape[3]))
-        # out = torch.reshape(out, (out.shape[0], out.shape[2], out.shape[1]*out.shape[3]))
         out = self.out_fc(out)
 
         return out
 
+# The positional encoder as described in the paper
 class PositionalEncoder(nn.Module):
 
     def __init__(self, embedding_dimension, max_len=5000):
@@ -126,13 +128,10 @@ class PositionalEncoder(nn.Module):
         return torch.einsum('i,j -> ij', sequence, omega).float()
 
     def forward(self, x):
-        #print("positional encoder")
-        #self.pe[:, :x.shape[1], :]
-        #print(Variable(self.pe[:, :x.shape[1], :], requires_grad=False).shape)
 
         return x + self.positional_encoding[:, :x.shape[1], :]
 
-
+# The transformer encoder block (left side of the diagram on pg 3)
 class TransformerBlock(nn.Module):
 
     def __init__(self, embedding_dim, heads, multiplier, dropout):
@@ -160,7 +159,7 @@ class TransformerBlock(nn.Module):
 
         return sub_block_2
 
-
+# The encoder, which is a positional encoding + several stacked transformer blocks
 class Encoder(nn.Module):
 
     def __init__(
@@ -207,7 +206,7 @@ class Encoder(nn.Module):
 
         return out
 
-
+# The decoder block, which is a multi-head attention + a transformer block
 class DecoderBlock(nn.Module):
 
     def __init__(self,
@@ -228,13 +227,12 @@ class DecoderBlock(nn.Module):
 
         query = self.attention(x, x, x, trg_mask)
         query = self.dropout(self.layer_norm(query + x))
-        #out = self.transformer_block(value, key, query, src_mask)
         out = self.transformer_block(query, key, value, src_mask)
 
         return out
 
 
-# Knock these out tomorrow evening, once and for all
+# The decoder, which is a positional embedding + several stacked decoder blocks + linear + softmax (softmax done in training loop) 
 class Decoder(nn.Module):
 
     def __init__(self,
@@ -272,7 +270,6 @@ class Decoder(nn.Module):
 
     def forward(self, x, key, value, src_mask=None, trg_mask=None):
 
-        # implement
         out = self.embedding(x)
         out = self.positional_encoding(out)
         out = self.dropout(out)
@@ -286,7 +283,7 @@ class Decoder(nn.Module):
 
         return out
 
-
+# Putting it all together!
 class Transformer(nn.Module):
 
     def __init__(self,
@@ -360,9 +357,11 @@ class Transformer(nn.Module):
 
         return decoded_logits
 
-
+# Just a test to make sure it all works as expected
 if __name__ == '__main__':
 
+
+    # Just an example: src corpus has vocab size of 100, trg corpus has vocab size of 110.
     transformer = Transformer(
         src_vocab_size=100,
         trg_vocab_size=110,
@@ -379,58 +378,10 @@ if __name__ == '__main__':
     ).to(device)
 
     src = torch.tensor([[1, 2, 3, 4, 3, 0],[5, 6, 8, 2, 5, 0]]).to(device)
-    #trg = torch.tensor([[1, 7, 8, 0, 0, 0, 5], [1, 8, 7, 3, 2, 8, 5]])
-    trg = torch.tensor([[1], [1]]).to(device)
-
-    embedded_trg = torch.randn(2, 8, 128)
+    trg = torch.tensor([[1, 7, 8, 0, 0, 0, 5], [1, 8, 7, 3, 2, 8, 5]]).to(device)
 
     print(src)
     print(trg)
 
-    print(transformer(src, trg[:, :]).shape)
-
-    """
-
-    encoder = Encoder(100, 128, 40, 6, 8, 6, 0.2)
-    decoder_block = DecoderBlock(128, 1, 4, 0.2)
-    decoder = Decoder(110, 128, 40, 8, 4, 2, 0.2)
-
-
-    Y = encoder(src)
-    print(Y.shape)
-
-    #out = decoder_block(embedded_trg, Y, Y)
-    #print(out.shape)
-
-    out = decoder(trg, Y, Y)
-    print(encoder)
-    print(out.shape)
-    
-    """
-
-    """
-    X = torch.randn(16, 10, 256)
-    attention = MultiHeadAttention(256, 8)
-    out = attention(X, X, X)
-    print(out.shape)
-
-    transformer_block = TransformerBlock(256, 8, 4, 0.3)
-
-    transformer = transformer_block(X, X, X)
-    print(transformer.shape)
-    """
-
-
-    """
-    X = torch.zeros(1, 5, 10)
-    print(X)
-    position = PositionalEncoder(10)
-    #print(position.pe)
-    print(position(X))
-    """
-
-
-
-
-
+    print(transformer(src, trg).shape)
 
