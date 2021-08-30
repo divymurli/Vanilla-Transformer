@@ -23,7 +23,7 @@ which is pretty close! Of course, this sentence was taken from the training set 
 
 ## Resources
 
-There are several great resources for transformers, but these are the some which helped me understand the conceptual underpinnings quite a bit:
+There are several great resources for transformers, but these are the main ones which helped me understand the conceptual underpinnings quite a bit:
 
 * Getting started with the [attention mechansim](http://peterbloem.nl/blog/transformers)
 * [Positional encoder](https://kazemnejad.com/blog/transformer_architecture_positional_encoding/)
