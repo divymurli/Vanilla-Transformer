@@ -2,6 +2,10 @@
 
 This is a bare-bones vanilla transformer as described in the 2017 paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762). The best way to learn a particular deep learning architecture is to work through implementing it yourself -- since transformers are so ubiquitous in modern deep learning, I went through the process of implementing one myself. 
 
+## Setup
+
+Note that that `torchtext` has (as of 2021 August, version `1.9.0`) deprecated a lot of its older functionality such as `Field`, `Multi30k` and `BucketIterator`. These functionalities are now stored in `torchtext.legacy`.
+
 ## Model train
 
 To train a model, just run `python train.py`. A reference German sentence is hard coded in the training script, and the English translation will display after every epoch. After 16 epochs, this the translation I got:
@@ -30,5 +34,5 @@ There are several great resources for transformers, but these are the main ones 
 * Lillian Weng's [transformer family](https://lilianweng.github.io/lil-log/2020/04/07/the-transformer-family.html)
 * Jay Alammar's [illustrated transformer](https://jalammar.github.io/illustrated-transformer/)
 
-As for implementational details, I found [Aladdin Persson's](https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/Pytorch/more_advanced/transformer_from_scratch/transformer_from_scratch.py) reference implementation (without the original paper's positional encoder) to be very helpful, as well as his [seq2seq transformertutorial](https://www.youtube.com/watch?v=M6adRGJe5cQ).  
+As for implementational details, I found Aladdin Persson's [reference implementation](https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/Pytorch/more_advanced/transformer_from_scratch/transformer_from_scratch.py) (without the original paper's positional encoder) to be very helpful, as well as his [seq2seq transformertutorial](https://www.youtube.com/watch?v=M6adRGJe5cQ).  
 
