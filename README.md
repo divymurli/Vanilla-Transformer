@@ -34,5 +34,5 @@ There are several great resources for transformers, but these are the main ones 
 * Lillian Weng's [transformer family](https://lilianweng.github.io/lil-log/2020/04/07/the-transformer-family.html)
 * Jay Alammar's [illustrated transformer](https://jalammar.github.io/illustrated-transformer/)
 
-As for implementational details, I found Aladdin Persson's [reference implementation](https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/Pytorch/more_advanced/transformer_from_scratch/transformer_from_scratch.py) (without the original paper's positional encoder) to be very helpful, as well as his [seq2seq transformertutorial](https://www.youtube.com/watch?v=M6adRGJe5cQ).  
+As for implementational details, I found Aladdin Persson's [reference implementation](https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/Pytorch/more_advanced/transformer_from_scratch/transformer_from_scratch.py) (without the original paper's positional encoder) to be very helpful, as well as his [seq2seq transformer tutorial](https://www.youtube.com/watch?v=M6adRGJe5cQ).  
 
