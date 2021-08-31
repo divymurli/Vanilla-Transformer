@@ -1,6 +1,6 @@
 # Vanilla transformer 
 
-This is a bare-bones vanilla transformer as described in the 2017 paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762). The best way to learn a particular deep learning architecture is to work through implementing it yourself -- since transformers are so ubiquitous in modern deep learning, I went through the process of implementing one myself. 
+This is a bare-bones seq2seq vanilla transformer for machine translation (German to English) as described in the 2017 paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762). The best way to learn a particular deep learning architecture is to work through implementing it yourself -- since transformers are so ubiquitous in modern deep learning, I went through the process of implementing one myself. 
 
 ## Setup
 
@@ -23,7 +23,7 @@ In Google translate, it comes out as:
 a marathon runner runs past passers-by and mobile toilets
 ```
 
-which is pretty close! Of course, this sentence was taken from the training set so the model (unexpectedly) learnt it quite quickly. After 20 epochs, I got a bleu score of 0.34. To speed up evaluation, I calculated it only on the first 100 samples of the test set.
+which is pretty close! Of course, this sentence was taken from the training set so the model (unexpectedly) learnt it quite quickly. After 20 epochs, I got a bleu score of 0.34. To speed up bleu evaluation, I calculated it only on the first 100 samples of the test set.
 
 ## Resources
 
