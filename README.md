@@ -23,7 +23,7 @@ In Google translate, it comes out as:
 a marathon runner runs past passers-by and mobile toilets
 ```
 
-which is pretty close! Of course, this sentence was taken from the training set so the model (unexpectedly) learnt it quite quickly. **Soon I'll add the BLEU score metric to see how well it does**.
+which is pretty close! Of course, this sentence was taken from the training set so the model (unexpectedly) learnt it quite quickly. After 20 epochs, I got a bleu score of 0.34. To speed up evaluation, I calculated it only on the first 100 samples of the test set.
 
 ## Resources
 
@@ -31,7 +31,7 @@ There are several great resources for transformers, but these are the main ones 
 
 * Getting started with the [attention mechansim](http://peterbloem.nl/blog/transformers)
 * [Positional encoder](https://kazemnejad.com/blog/transformer_architecture_positional_encoding/)
-* Lillian Weng's [transformer family](https://lilianweng.github.io/lil-log/2020/04/07/the-transformer-family.html)
+* Lilian Weng's [transformer family](https://lilianweng.github.io/lil-log/2020/04/07/the-transformer-family.html)
 * Jay Alammar's [illustrated transformer](https://jalammar.github.io/illustrated-transformer/)
 
 As for implementational details, I found Aladdin Persson's [reference implementation](https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/Pytorch/more_advanced/transformer_from_scratch/transformer_from_scratch.py) (without the original paper's positional encoder) to be very helpful, as well as his [seq2seq transformer tutorial](https://www.youtube.com/watch?v=M6adRGJe5cQ).  
