@@ -5,8 +5,6 @@ from torchtext.legacy.datasets import Multi30k
 from torchtext.legacy.data import Field, BucketIterator
 import spacy
 from Transformer import Transformer
-from Transformer_Answer import Transformer as Transformer_Answer
-from Transformer_Answer_PositionEncoding import Transformer as Transformer_Answer_PE
 from translate import greedy_translate, calculate_bleu
 from tqdm import tqdm
 
