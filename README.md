@@ -2,11 +2,17 @@
 
 This is a bare-bones seq2seq vanilla transformer for machine translation (German to English) as described in the 2017 paper [Attention Is All You Need](https://arxiv.org/abs/1706.03762). The best way to learn a particular deep learning architecture is to work through implementing it yourself -- since transformers are so ubiquitous in modern deep learning, I went through the process of implementing one myself. 
 
-## Setup
+## Local setup
 
-Note that that `torchtext` has (as of 2021 August, version `1.9.0`) deprecated a lot of its older functionality such as `Field`, `Multi30k` and `BucketIterator`. These functionalities are now stored in `torchtext.legacy`.
+1. Install [conda](https://docs.anaconda.com/anaconda/install/)
+1. Create (local) conda environment: `conda env create -f environment.yml`
+1. Activate environment: `conda activate vanilla_transformeer`
+1. Confirm you can run the training script with `python train.py` 
+1. Realistically, run this on a GPU-enabled machine or it will train like molasses. I used an AWS `p3.2xlarge` instance.
 
-## Model train
+Note that that `torchtext` has (as of 2021 August, torch version `1.9.0`) deprecated a lot of its older functionality such as `Field`, `Multi30k` and `BucketIterator`. These functionalities are now stored in `torchtext.legacy`.
+
+## Model training
 
 To train a model, just run `python train.py`. A reference German sentence is hard coded in the training script, and the English translation will display after every epoch. After 16 epochs, this the translation I got:
 
