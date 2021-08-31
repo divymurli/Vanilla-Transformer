@@ -7,7 +7,7 @@ import spacy
 from Transformer import Transformer
 from Transformer_Answer import Transformer as Transformer_Answer
 from Transformer_Answer_PositionEncoding import Transformer as Transformer_Answer_PE
-from translate import greedy_translate
+from translate import greedy_translate, calculate_bleu
 from tqdm import tqdm
 
 # Define the device
@@ -69,7 +69,10 @@ num_layers = 3
 dropout = 0.1
 max_len = 100
 multiplier = 4
+
+# Display hyperparams
 translate_every = 1
+bleu_every = 5
 
 # Translating from German to English
 trg_pad_idx = english.vocab.stoi["<pad>"]
@@ -149,6 +152,11 @@ for epoch in range(num_epochs):
         translation = greedy_translate(model, example_src_sentence, german, english, device, max_len=50)
         print("==== TRANSLATION ====")
         print(translation)
+    
+    if epoch % bleu_every == 0:
+        model.eval()
+        bleu_score = calculate_bleu(model, test_data[:100], german, english, device)
+        print(f"bleu on first 100 sentences of test set: {bleu_score:.2f}")
 
     model.train()
     losses = []

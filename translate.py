@@ -1,6 +1,7 @@
 import torch
 from torchtext.legacy.datasets import Multi30k
 from torchtext.legacy.data import Field, BucketIterator
+from torchtext.data.metrics import bleu_score
 import spacy
 
 from Transformer import Transformer
@@ -57,8 +58,11 @@ def greedy_translate(model, example_src_sentence, src_field, trg_field, device, 
     spacy_de = spacy.load('de')
 
     # tokenize
-    tokenized_src_text = [tok.text.lower() for tok in spacy_de(example_src_sentence)]
-
+    if type(example_src_sentence) == str:
+        tokenized_src_text = [tok.text.lower() for tok in spacy_de(example_src_sentence)]
+    else:
+        tokenized_src_text = [tok.lower() for tok in example_src_sentence]
+        
     # prepend and append start and end tokens to sentence
     tokenized_src_text.insert(0, src_field.init_token)
     tokenized_src_text.append(src_field.eos_token)
@@ -91,11 +95,27 @@ def greedy_translate(model, example_src_sentence, src_field, trg_field, device, 
 
         counter += 1
     
-    print(f"Translated tokens: {translated_sentence}")
+    # print(f"Translated tokens: {translated_sentence}")
 
     translated_sentence = [trg_field.vocab.itos[idx] for idx in translated_sentence]
 
     return translated_sentence
+
+def calculate_bleu(model, ground_truth_dataset, src_field, trg_field, device):
+
+    ground_truths = []
+    predictions = []
+
+    for example in ground_truth_dataset:
+        
+        ground_truths.append([example.trg])
+        predicted_translation = greedy_translate(model, example.src, src_field, trg_field, device)
+
+        # Drop <sos> and <eos> tokens
+        predictions.append(predicted_translation[1:-1])
+    
+    return bleu_score(predictions, ground_truths)
+
 
 # Meant for testing purposes only
 
